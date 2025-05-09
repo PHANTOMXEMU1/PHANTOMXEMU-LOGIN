@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>PHANTOMXEMU Register</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      font-family: 'Segoe UI', sans-serif;
+    }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      overflow: hidden;
+    }
+
+    video#bgVideo {
+      position: fixed;
+      top: 0;
+      left: 0;
+      min-width: 100%;
+      min-height: 100%;
+      object-fit: cover;
+      z-index: -1;
+    }
+
+    .container {
+      background-color: rgba(0, 0, 0, 0.85);
+      color: white;
+      padding: 40px;
+      width: 360px;
+      border-radius: 12px;
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      animation: float 5s ease-in-out infinite;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      z-index: 1;
+      transition: opacity 0.3s ease, transform 0.3s ease;
+    }
+
+    .container.hidden {
+      opacity: 0;
+      pointer-events: none;
+      transform: translate(-50%, -50%) scale(0.9);
+    }
+
+    @keyframes float {
+      0%   { transform: translate(-50%, -50%) translateY(0); }
+      50%  { transform: translate(-50%, -50%) translateY(-10px); }
+      100% { transform: translate(-50%, -50%) translateY(0); }
+    }
+
+    h1 {
+      font-size: 28px;
+      margin-bottom: 20px;
+      letter-spacing: 2px;
+    }
+
+    input {
+      width: 100%;
+      padding: 12px;
+      margin: 10px 0;
+      border: none;
+      border-radius: 6px;
+      font-size: 16px;
+    }
+
+    button {
+      width: 100%;
+      padding: 12px;
+      background: white;
+      color: black;
+      border: none;
+      border-radius: 6px;
+      font-size: 16px;
+      cursor: pointer;
+      margin-top: 10px;
+      transition: background 0.3s;
+    }
+
+    button:hover {
+      background: #ccc;
+    }
+
+    .popup {
+      display: none;
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background-color: rgba(255, 255, 255, 0.95);
+      color: black;
+      padding: 40px 30px;
+      border-radius: 12px;
+      font-size: 20px;
+      font-weight: bold;
+      z-index: 2;
+      animation: popupFade 0.3s ease forwards;
+    }
+
+    @keyframes popupFade {
+      0% { opacity: 0; transform: translate(-50%, -50%) scale(0.8); }
+      100% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+    }
+
+    .error {
+      color: red;
+      font-size: 14px;
+      margin-top: 10px;
+      display: none;
+    }
+  </style>
+</head>
+<body>
+
+  <video autoplay muted loop id="bgVideo">
+    <source src="https://motionbgs.com/media/3335/topographic-textures.960x540.mp4" type="video/mp4">
+    Your browser does not support the video tag.
+  </video>
+
+  <div class="container" id="registerBox">
+    <h1>PHANTOMXEMU</h1>
+    <input type="text" id="newUsername" placeholder="Username">
+    <input type="password" id="newPassword" placeholder="Password">
+    <button onclick="submitForm()">Register</button>
+  </div>
+
+  <div class="popup" id="successPopup">Registered Successfully!</div>
+
+  <script>
+    function submitForm() {
+      const username = document.getElementById('newUsername').value.trim();
+      const password = document.getElementById('newPassword').value.trim();
+      const errorMsg = document.getElementById('errorMsg');
+      const registerBox = document.getElementById('registerBox');
+      const successPopup = document.getElementById('successPopup');
+
+      if (!username || !password) {
+        errorMsg.innerText = "Please fill in both fields.";
+        errorMsg.style.display = "block";
+        return;
+      }
+
+      const scriptUrl = 'https://script.google.com/macros/s/AKfycbyGbcB2OGE0W5LfEpdumREH104o8u5cwtGuiMDtIHlD1P3TWqXoibrhFWd2IKxYWaNOfA/exec';
+
+      const params = new URLSearchParams();
+      params.append('username', username);
+      params.append('password', password);
+
+      fetch(scriptUrl, {
+        method: 'POST',
+        body: params
+      })
+      .then(response => response.text())
+      .then(responseText => {
+        if (responseText === "Success") {
+          registerBox.classList.add('hidden');
+          successPopup.style.display = "block";
+        } else {
+          throw new Error("Registration failed.");
+        }
+      })
+      .catch(err => {
+        errorMsg.innerText = "Error: " + err.message;
+        errorMsg.style.display = "block";
+      });
+    }
+  </script>
+
+</body>
+</html>
